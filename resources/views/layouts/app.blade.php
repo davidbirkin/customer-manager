@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <base href="./">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>{{ config('app.name', 'Laravel') }}</title>
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css"
+        integrity="sha512-GQGU0fMMi238uA+a/bdWJfpUGKUkBdgfFdgBm72SUQ6BeyWjoY/ton0tEjH+OSH9iP4Dfh+7HM0I9f5eR0L/4w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+    @livewireStyles
+</head>
+
+<body>
+    <div class="sidebar sidebar-dark sidebar-fixed" id="sidebar">
+        <div class="sidebar-brand d-none d-md-flex">
+            <svg class="sidebar-brand-full" width="118" height="46" alt="CoreUI Logo">
+                <use xlink:href="{{ asset('icons/brand.svg#full') }}"></use>
+            </svg>
+            <svg class="sidebar-brand-narrow" width="46" height="46" alt="CoreUI Logo">
+                <use xlink:href="{{ asset('icons/brand.svg#signet') }}"></use>
+            </svg>
+        </div>
+        @include('layouts.navigation')
+        <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>
+    </div>
+    <div class="wrapper d-flex flex-column min-vh-100 bg-light">
+        <header class="header header-sticky mb-4">
+            <div class="container-fluid">
+                <button class="header-toggler px-md-0 me-md-3" type="button"
+                    onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()">
+                    <svg class="icon icon-lg">
+                        <use xlink:href="{{ asset('icons/coreui.svg#cil-menu') }}"></use>
+                    </svg>
+                </button>
+                <a class="header-brand d-md-none" href="#">
+                    <svg width="118" height="46" alt="CoreUI Logo">
+                        <use xlink:href="{{ asset('icons/brand.svg#full') }}"></use>
+                    </svg>
+                </a>
+                <ul class="header-nav d-none d-md-flex">
+                    <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
+                    </li>
+                </ul>
+                <ul class="header-nav ms-auto">
+
+                </ul>
+                <ul class="header-nav ms-3">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link py-0" data-coreui-toggle="dropdown" href="#" role="button"
+                            aria-haspopup="true" aria-expanded="false">
+                            {{ Auth::user()->full_name }}
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end pt-0">
+                            <a class="dropdown-item" href="{{ route('profile.show') }}">
+                                <svg class="icon me-2">
+                                    <use xlink:href="{{ asset('icons/coreui.svg#cil-user') }}"></use>
+                                </svg>
+                                {{ __('My profile') }}
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <a class="dropdown-item" href="{{ route('logout') }}"
+                                    onclick="event.preventDefault(); this.closest('form').submit();">
+                                    <svg class="icon me-2">
+                                        <use xlink:href="{{ asset('icons/coreui.svg#cil-account-logout') }}"></use>
+                                    </svg>
+                                    {{ __('Logout') }}
+                                </a>
+                            </form>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </header>
+        <div class="body flex-grow-1 px-3">
+            <div class="container-fluid">
+                @include('components.toast')
+                @yield('content')
+            </div>
+        </div>
+        <footer class="footer">
+            <div class="ms-auto">Powered by&nbsp;<a href="https://coreui.io/bootstrap/ui-components/">CoreUI
+                    Components</a></div>
+        </footer>
+    </div>
+
+    <script src="{{ asset('js/coreui.bundle.min.js') }}"></script>
+    <script>
+        // Global Functions
+        function createFetchRequest(method, formdata = null, token = null) {
+            var body = null
+
+            if (formdata != null) {
+                const plainFormData = Object.fromEntries(formdata.entries());
+                var body = JSON.stringify(plainFormData)
+            }
+
+            const fetchOptions = {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-CSRF-TOKEN": token
+                },
+
+                body: body
+            };
+
+            return fetchOptions
+        }
+
+        async function makeFetchRequest(url, options) {
+            console.log(url)
+            console.log(options)
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                let json = response.json();
+                if (response.statusCode == 422) {
+
+                } else {
+                    alert('An error has occurred')
+                }
+            }
+
+            let resp = await response.json();
+
+            return resp;
+        }
+
+        async function postRequest(url, data, token) {
+            const response = await fetch(url, {
+                method: 'POST',
+                body: data,
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token
+                }
+            });
+
+            if (!response.ok) {
+
+                throw new ErrorException(response)
+            }
+
+            let resp = await response.json();
+
+            return resp;
+        }
+
+        function showToast(heading, content) {
+            document.getElementById('toast-heading').innerText = heading;
+            document.getElementById('toast-content').innerText = content;
+
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+            console.log(toastElList);
+            var toastList = toastElList.map(function(toastEl) {
+                return new coreui.Toast(toastEl)
+            })
+
+            console.log(toastList[0])
+
+
+            toastList[0].show()
+        }
+    </script>
+
+
+
+    @yield('scripts')
+    @livewireScripts
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.min.js"
+        integrity="sha512-OvBgP9A2JBgiRad/mM36mkzXSXaJE9BEIENnVEmeZdITvwT09xnxLtT4twkCa8m/loMbPHsvPl0T8lRGVBwjlQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</body>
+
+</html>
