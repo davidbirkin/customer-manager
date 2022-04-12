@@ -19,22 +19,4 @@ class UserController extends Controller
 
         return view('users.index', compact('users','roles'));
     }
-
-    public function edit(User $user)
-    {
-        ray($user);
-        return response()->json($user->makeHidden(['email_verified_at','created_at', 'updated_at']));
-    }
-
-    public function update(User $user, UpdateUserRequest $request) 
-    {
-        $updated = $user->update($request->validated());
-        if ($updated === true) { 
-            return response()->json([
-                "user" => $user->makeHidden(['email_verified_at','created_at', 'updated_at']),
-                "status" => "success",
-            ]);
-        }
-        
-    }
 }
