@@ -13,26 +13,6 @@ class RoleController extends Controller
     }
 
     public function index() {
-        $roles = Role::all();
-
-        if ($roles->count() > 0) { 
-            $roles = Role::withCount('users')->get();
-        }
-
-        ray($roles);
-        
-
-        return view('roles.index')->with([
-            'roles' => $roles
-        ]);
-    }
-
-    public function store(AddNewRole $request)
-    {
-        ray($request->validated());
-        Role::create($request->validated());
-        return response()->json([
-            "status" => "success"
-        ]);
+        return view('roles.index');
     }
 }

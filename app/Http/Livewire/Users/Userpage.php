@@ -7,18 +7,19 @@ use App\Models\User;
 use Livewire\Component;
 use Illuminate\Support\Str;
 use Livewire\WithPagination;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Livewire\Traits\WithSorting;
 
-class UserTable extends Component
+class Userpage extends Component
 {
+
     use WithPagination;
 
     protected $paginationTheme = 'bootstrap';
-    protected $queryString = ['search' => [
-            'except' => ''
-        ]
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'page' => ['except', 1]
     ];
 
     public string $name;
@@ -42,6 +43,7 @@ class UserTable extends Component
     public User $user;
     public $modal_title;
     protected $password;
+    public $page = 1;
 
     public function mount(User $user)
     {
@@ -49,6 +51,9 @@ class UserTable extends Component
         $this->perPage = 5;
         $this->user = $user;
         $this->roles = Role::all();
+        if ($this->search !== "") { 
+            $this->page = 1;
+        }
     }
 
     public function render()
@@ -59,9 +64,14 @@ class UserTable extends Component
             })
             ->paginate($this->perPage);
 
-        return view('livewire.users.user-table', [
+        if ($users->total() <= 5) {
+            $this->resetPage();
+        }
+        
+        return view('livewire.users.userpage', [
             'users' => $users,
-            'roles' => $this->roles
+            'roles' => $this->roles,
+            'perPage' => $this->perPage,
         ]);
     }
 
@@ -80,13 +90,13 @@ class UserTable extends Component
 
     public function updated($name, $value)
     {
-        if($name = 'user.full_name') $this->validateOnly('user.full_name');
-        if($name = 'user.email_address') $this->validateOnly('user.email_address');
-        if($name = 'user.address_line_1') $this->validateOnly('user.address_line_1');
-        if($name = 'user.address_line_2') $this->validateOnly('user.address_line_2');
-        if($name = 'user.contact_number') $this->validateOnly('user.contact_number');
-        if($name = 'user.postal_code') $this->validateOnly('user.postal_code');
-        if($name = 'user.role_id') $this->validateOnly('user.role_id');
+        if($name == 'user.full_name') $this->validateOnly('user.full_name');
+        if($name == 'user.email_address') $this->validateOnly('user.email_address');
+        if($name == 'user.address_line_1') $this->validateOnly('user.address_line_1');
+        if($name == 'user.address_line_2') $this->validateOnly('user.address_line_2');
+        if($name == 'user.contact_number') $this->validateOnly('user.contact_number');
+        if($name == 'user.postal_code') $this->validateOnly('user.postal_code');
+        if($name == 'user.role_id') $this->validateOnly('user.role_id');    
     }
 
     public function create()
@@ -116,11 +126,12 @@ class UserTable extends Component
         }
         
         $this->user->save();
-        $this->showModal = false;
+        $this->close();
     }
 
     public function close()
     {
         $this->showModal = false;
     }   
+
 }

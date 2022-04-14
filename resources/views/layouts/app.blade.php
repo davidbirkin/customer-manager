@@ -97,89 +97,43 @@
     </div>
 
     <script src="{{ asset('js/coreui.bundle.min.js') }}"></script>
+    @livewireScripts
     <script>
         // Global Functions
-        function createFetchRequest(method, formdata = null, token = null) {
-            var body = null
-
-            if (formdata != null) {
-                const plainFormData = Object.fromEntries(formdata.entries());
-                var body = JSON.stringify(plainFormData)
-            }
-
-            const fetchOptions = {
-                method: method,
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                    "X-CSRF-TOKEN": token
-                },
-
-                body: body
-            };
-
-            return fetchOptions
-        }
-
-        async function makeFetchRequest(url, options) {
-            console.log(url)
-            console.log(options)
-            const response = await fetch(url, options);
-            if (!response.ok) {
-                let json = response.json();
-                if (response.statusCode == 422) {
-
-                } else {
-                    alert('An error has occurred')
-                }
-            }
-
-            let resp = await response.json();
-
-            return resp;
-        }
-
-        async function postRequest(url, data, token) {
-            const response = await fetch(url, {
-                method: 'POST',
-                body: data,
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': token
-                }
-            });
-
-            if (!response.ok) {
-
-                throw new ErrorException(response)
-            }
-
-            let resp = await response.json();
-
-            return resp;
-        }
-
-        function showToast(heading, content) {
-            document.getElementById('toast-heading').innerText = heading;
-            document.getElementById('toast-content').innerText = content;
-
-            var toastElList = [].slice.call(document.querySelectorAll('.toast'))
-            console.log(toastElList);
-            var toastList = toastElList.map(function(toastEl) {
-                return new coreui.Toast(toastEl)
+        document.addEventListener('DOMContentLoaded', function() {
+            window.addEventListener('swal:confirm', event => {
+                console.log(event);
+                Swal.fire({
+                    title: event.detail.title,
+                    text: event.detail.text,
+                    icon: event.detail.icon,
+                    confirmButtonText: event.detail.confirmconfirmButtonText,
+                    showDenyButton: event.detail.showDenyButton,
+                    denyButtonText: "Close"
+                }).then((result) => {
+                    console.log(result.isConfirmed)
+                    console.log(event)
+                    if (result.isConfirmed === true) {
+                        window.livewire.emit('delete', event.detail.id)
+                    }
+                });
             })
 
-            console.log(toastList[0])
+            window.addEventListener('swal:delete', event => {
+                Swal.fire({
+                    title: event.detail.title,
+                    text: event.detail.text,
+                    icon: event.detail.icon,
+                    buttons: true,
+                    dangerMode: true
+                })
 
-
-            toastList[0].show()
-        }
+            });
+        });
     </script>
 
 
-
-    @yield('scripts')
-    @livewireScripts
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.min.js"
         integrity="sha512-OvBgP9A2JBgiRad/mM36mkzXSXaJE9BEIENnVEmeZdITvwT09xnxLtT4twkCa8m/loMbPHsvPl0T8lRGVBwjlQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>

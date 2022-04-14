@@ -2,8 +2,7 @@
 
 @section('content')
 
-    @livewire('users.user-table')
-
+    @livewire('users.userpage')
 
 @section('scripts')
     <script>
