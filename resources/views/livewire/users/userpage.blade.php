@@ -41,8 +41,8 @@
                             <td>{{ $user->contact_number ?? 'Not Set' }}</td>
                             <td>{{ $user->role->name ?? 'Not Set' }}</td>
                             <td>
-                                <button class="btn btn-warning btn-sm float-end editUser"
-                                    wire:click.prevent="edit({{ $user->id }})">Edit User</button>
+                                <button class="btn btn-warning btn-sm float-end"
+                                    wire:click.prevent="edit({{ $user->id }})">Edit</button>
                             </td>
                         </tr>
                     @endforeach
